@@ -18,20 +18,26 @@ session_start();
             text-align: center;
             box-sizing: border-box;
         }
+
+        img {
+            width: auto;
+            max-height: 220px;
+        }
     </style>
 </head>
 
 <body>
     <main class="container pt-2">
         <nav class="d-flex justify-content-between">
-            <a class="text-decoration-none" href="/">
+            <a class="text-decoration-none" href="/php-blog">
                 <h1 class="text-secondary">PHP Blog</h1>
             </a>
             <div>
                 <?php if (isset($_SESSION['uid'])) : ?>
-                    <a href="/pages/logout.php">Logout</a>
+                    <a href="/php-blog/index.php?filter=user">My posts</a>
+                    <a href="/php-blog/pages/logout.php">Logout</a>
                 <?php else : ?>
-                    <a href="/pages/login.php">Login</a>
+                    <a href="/php-blog/pages/login.php">Login</a>
                 <?php endif ?>
             </div>
         </nav>

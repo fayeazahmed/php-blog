@@ -11,8 +11,17 @@ if (isset($_POST['update'])) {
         exit;
     $title = $_POST['title'];
     $description = $_POST['description'];
+    $image = $_FILES["image"];
 
-    $query = "UPDATE blog SET `title` = '$title', `description` = '$description' WHERE `id` = $id";
+    if (isset($image)) {
+        move_uploaded_file(
+            $image["tmp_name"],
+            "../images/" . $image["name"]
+        );
+        $image = $image["name"];
+    }
+
+    $query = "UPDATE blog SET `title` = '$title', `description` = '$description', `image` = '$image' WHERE `id` = $id";
     $result = mysqli_query($conn, $query);
 
     if ($result)
@@ -46,17 +55,21 @@ if (isset($_POST['comment'])) {
 $query = "SELECT b.*, u.fullname FROM blog AS b LEFT JOIN user as u ON u.id = b.user_id WHERE b.id = '$id'";
 $result = mysqli_query($conn, $query);
 $row = mysqli_fetch_array($result);
+if (!$row)
+    header('location: ../index.php?m=Post not available');
 $title = $row['title'];
 $description = $row['description'];
 $fullname = $row['fullname'];
 ?>
 
 <!-- Disable form controls if user is not post creator -->
-<form class="text-start" action="#" method="post">
+<form class="text-start" action="#" method="post" enctype="multipart/form-data">
     <input <?php echo isset($_SESSION['uid']) && $_SESSION['uid'] == $row['user_id'] ? "" : "disabled" ?> class="form-control w-50 mt-2 text-start text-strong" value="<?php echo $fullname ?>" required disabled type="text">
     <input <?php echo isset($_SESSION['uid']) && $_SESSION['uid'] == $row['user_id'] ? "" : "disabled" ?> class="form-control w-50 mt-2 text-start" value="<?php echo $title ?>" required placeholder="Blog title" type="text" name="title">
     <textarea <?php echo isset($_SESSION['uid']) && $_SESSION['uid'] == $row['user_id'] ? "" : "disabled" ?> class="form-control w-50 mt-2 text-start" required placeholder="Blog description" rows="5" type="text" name="description"><?php echo $description ?></textarea>
     <?php if (isset($_SESSION['uid']) && $_SESSION['uid'] == $row['user_id']) : ?>
+        <label class="mt-2" for="blogImage">Image (optional)</label>
+        <input class="form-control w-50 mt-2 text-start" id="blogImage" type="file" name="image" accept="image/*" />
         <div class="text-start mt-2">
             <input class="btn btn-success" type="submit" name="update" value="Update">
             <input class="btn btn-danger" type="submit" name="delete" value="Delete">
